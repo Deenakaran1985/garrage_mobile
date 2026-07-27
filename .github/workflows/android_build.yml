@@ -59,17 +59,41 @@ jobs:
           }
           EOF
           
+          # Harden CI memory limits and explicitly turn off Gradle daemon & VFS watcher to eliminate 'Already watching path' exception
+          cat << 'PROPS' >> android/gradle.properties
+
+          org.gradle.jvmargs=-Xmx4g -Dfile.encoding=UTF-8 -XX:+HeapDumpOnOutOfMemoryError -XX:+UseParallelGC
+          org.gradle.parallel=true
+          org.gradle.daemon=false
+          org.gradle.vfs.watch=false
+          PROPS
+          
           echo "=== Verified Gradle Configuration ==="
           head -n 25 android/build.gradle || true
           head -n 25 android/settings.gradle || true
+          tail -n 10 android/gradle.properties || true
 
-      - name: Build Android APK (Release Mode)
-        run: flutter build apk --release
+      - name: Build Android APK (Release & Direct Gradle Fallback)
+        run: |
+          flutter build apk --release --no-tree-shake-icons || (cd android && chmod +x ./gradlew && ./gradlew assembleRelease --no-daemon --no-watch-fs)
+
+      - name: Locate and Organize Built APK Artifacts
+        run: |
+          mkdir -p final_apk_output
+          find build -name "*.apk" -exec cp {} final_apk_output/ \; || true
+          ls -la final_apk_output/
+          if [ ! -f "final_apk_output/AutoPro_Android_Release.apk" ]; then
+            APK=$(find final_apk_output -name "*.apk" | head -n 1)
+            if [ -n "$APK" ]; then
+              cp "$APK" final_apk_output/AutoPro_Android_Release.apk
+            fi
+          fi
+          ls -la final_apk_output/
 
       - name: Upload APK Artifact to GitHub Workflow
         uses: actions/upload-artifact@v4
         with:
           name: AutoPro_Android_Release.apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          path: final_apk_output/*.apk
           retention-days: 30
           compression-level: 0
