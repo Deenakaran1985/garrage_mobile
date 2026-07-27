@@ -129,7 +129,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       const SizedBox(width: 12),
                       Expanded(child: _buildStatCard('Pending Booking', pendingJobs.toString(), Colors.amberAccent, Icons.more_time)),
                       const SizedBox(width: 12),
-                      Expanded(child: _buildStatCard('On-Site SOS', onsiteRequests.toString(), Colors.roseAccent, Icons.local_shipping, isHighlight: onsiteRequests > 0)),
+                      Expanded(child: _buildStatCard('On-Site SOS', onsiteRequests.toString(), Colors.redAccent, Icons.local_shipping, isHighlight: onsiteRequests > 0)),
                     ],
                   ),
                   
