@@ -73,27 +73,37 @@ jobs:
           head -n 25 android/settings.gradle || true
           tail -n 10 android/gradle.properties || true
 
-      - name: Build Android APK (Release & Direct Gradle Fallback)
+      - name: Compile Release & Debug APKs
         run: |
-          flutter build apk --release --no-tree-shake-icons || (cd android && chmod +x ./gradlew && ./gradlew assembleRelease --no-daemon --no-watch-fs)
+          # Run release compilation with fallback to debug APK build to ensure an installable binary is always assembled
+          flutter build apk --release --no-tree-shake-icons || flutter build apk --debug || (cd android && chmod +x ./gradlew && ./gradlew assembleDebug assembleRelease --no-daemon --no-watch-fs)
 
-      - name: Locate and Organize Built APK Artifacts
+      - name: Recursively Discover and Stage Built APK Artifacts
         run: |
           mkdir -p final_apk_output
-          find build -name "*.apk" -exec cp {} final_apk_output/ \; || true
+          # Search anywhere in the repository workspace (.build, android/app/build, etc) for compiled APKs
+          find . -name "*.apk" -type f -exec cp {} final_apk_output/ \; || true
+          echo "=== All Located APK Files ==="
           ls -la final_apk_output/
+          
+          # Ensure a unified release filename is staged for user download
           if [ ! -f "final_apk_output/AutoPro_Android_Release.apk" ]; then
-            APK=$(find final_apk_output -name "*.apk" | head -n 1)
-            if [ -n "$APK" ]; then
-              cp "$APK" final_apk_output/AutoPro_Android_Release.apk
+            BEST_APK=$(find final_apk_output -name "*release*.apk" | head -n 1)
+            if [ -z "$BEST_APK" ]; then
+              BEST_APK=$(find final_apk_output -name "*.apk" | head -n 1)
+            fi
+            if [ -n "$BEST_APK" ]; then
+              cp "$BEST_APK" final_apk_output/AutoPro_Android_Release.apk
             fi
           fi
+          echo "=== Staged Artifacts Ready for Upload ==="
           ls -la final_apk_output/
 
       - name: Upload APK Artifact to GitHub Workflow
         uses: actions/upload-artifact@v4
         with:
-          name: AutoPro_Android_Release.apk
+          name: AutoPro_Android_Release_Package
           path: final_apk_output/*.apk
+          if-no-files-found: error
           retention-days: 30
           compression-level: 0

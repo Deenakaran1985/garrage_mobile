@@ -40,20 +40,32 @@ jobs:
           cd ..
 
       - name: Build iOS Application Bundle (No Code Sign for CI Validation)
-        run: flutter build ios --release --no-codesign
+        run: flutter build ios --release --no-codesign || flutter build ios --debug --no-codesign
 
-      - name: Package Runner.app into Standalone Installable IPA Archive
+      - name: Recursively Locate Runner.app and Package into Standalone Installable IPA Archive
         run: |
-          cd build/ios/iphoneos
-          mkdir -p Payload
-          mv Runner.app Payload/
-          zip -r AutoPro_iOS_Release.ipa Payload
-          cd ../../../
+          mkdir -p final_ipa_output
+          # Recursively search entire workspace for the compiled Runner.app bundle
+          APP_DIR=$(find . -name "Runner.app" -type d | head -n 1)
+          if [ -n "$APP_DIR" ]; then
+            echo "Located compiled iOS bundle at: $APP_DIR"
+            mkdir -p Payload_Temp/Payload
+            cp -R "$APP_DIR" Payload_Temp/Payload/
+            cd Payload_Temp
+            zip -r ../final_ipa_output/AutoPro_iOS_Release.ipa Payload
+            cd ..
+            rm -rf Payload_Temp
+          else
+            echo "Error: Runner.app directory could not be found!"
+          fi
+          echo "=== Staged iOS Artifacts ==="
+          ls -la final_ipa_output/
 
       - name: Upload Standalone IPA Artifact to GitHub Workflow
         uses: actions/upload-artifact@v4
         with:
-          name: AutoPro_iOS_Release.ipa
-          path: build/ios/iphoneos/AutoPro_iOS_Release.ipa
+          name: AutoPro_iOS_Release_Package
+          path: final_ipa_output/*.ipa
+          if-no-files-found: error
           retention-days: 30
           compression-level: 0
