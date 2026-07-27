@@ -29,6 +29,9 @@ jobs:
           channel: 'stable'
           cache: true
 
+      - name: Generate Native Android Project Architecture
+        run: flutter create --org com.autopro.garage .
+
       - name: Install Flutter Dependencies
         run: flutter pub get
 

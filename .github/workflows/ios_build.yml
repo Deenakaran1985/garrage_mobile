@@ -28,13 +28,16 @@ jobs:
           channel: 'stable'
           cache: true
 
+      - name: Generate Native iOS Project Architecture
+        run: flutter create --org com.autopro.garage .
+
       - name: Install Flutter Dependencies
         run: flutter pub get
 
       - name: Install CocoaPods Dependencies for iOS
         run: |
           cd ios
-          pod install
+          pod install || pod update
           cd ..
 
       - name: Build iOS App Bundle (No Code Sign for CI Validation)
