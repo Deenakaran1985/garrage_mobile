@@ -215,7 +215,7 @@ class _JobCardsScreenState extends State<JobCardsScreen> {
                                     Text('Est. Total', style: TextStyle(fontSize: 11, color: Colors.grey[500])),
                                     Text(
                                       '₹${jc['estimated_cost'] ?? '0'}',
-                                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.extrabold, color: Colors.white),
+                                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Colors.white),
                                     ),
                                   ],
                                 ),

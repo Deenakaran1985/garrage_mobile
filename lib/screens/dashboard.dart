@@ -67,7 +67,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(companyName, style: const TextStyle(fontWeight: FontWeight.extrabold, fontSize: 22, color: Colors.white)),
+            Text(companyName, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 22, color: Colors.white)),
             Text(companyTagline, style: TextStyle(fontSize: 11, color: Colors.blueAccent[100], fontWeight: FontWeight.w600, letterSpacing: 0.5)),
           ],
         ),
@@ -147,7 +147,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ),
                         child: Text(
                           '₹${totalRevenue.toStringAsFixed(0)}',
-                          style: const TextStyle(color: Colors.greenAccent, fontWeight: FontWeight.extrabold, fontSize: 16),
+                          style: const TextStyle(color: Colors.greenAccent, fontWeight: FontWeight.w800, fontSize: 16),
                         ),
                       ),
                     ],
@@ -237,7 +237,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           const SizedBox(height: 12),
           Text(title, style: TextStyle(color: Colors.grey[400], fontSize: 12, fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
           const SizedBox(height: 4),
-          Text(value, style: TextStyle(fontSize: 26, fontWeight: FontWeight.extrabold, color: isHighlight ? color : Colors.white)),
+          Text(value, style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: isHighlight ? color : Colors.white)),
         ],
       ),
     );
