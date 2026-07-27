@@ -1,0 +1,54 @@
+name: iOS CI / CD Release Build
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch: # Allows manual trigger from GitHub Actions UI
+
+jobs:
+  build_ios:
+    name: Build iOS App Bundle (Unsigned)
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout Repository Code
+        uses: actions/checkout@v4
+
+      - name: Setup Apple Xcode Environment
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: 'latest-stable'
+
+      - name: Setup Flutter Environment
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.29.x'
+          channel: 'stable'
+          cache: true
+
+      - name: Install Flutter Dependencies
+        run: flutter pub get
+
+      - name: Install CocoaPods Dependencies for iOS
+        run: |
+          cd ios
+          pod install
+          cd ..
+
+      - name: Build iOS App Bundle (No Code Sign for CI Validation)
+        run: flutter build ios --release --no-codesign
+
+      - name: Create Zip Archive of iOS Application Bundle
+        run: |
+          cd build/ios/iphoneos
+          zip -r ios_app_bundle.zip Runner.app
+          cd ../../../
+
+      - name: Upload iOS Application Artifact to GitHub Workflow
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-runner-app.zip
+          path: build/ios/iphoneos/ios_app_bundle.zip
+          retention-days: 30
