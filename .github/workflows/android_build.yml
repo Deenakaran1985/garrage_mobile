@@ -29,10 +29,39 @@ jobs:
           cache: true
 
       - name: Generate Native Android Project Structure
-        run: flutter create --org com.autopro.garage --platforms=android .
+        run: flutter create --org com.autopro.garage --platforms=android -a kotlin .
 
-      - name: Install Flutter Dependencies
-        run: flutter pub get
+      - name: Install Flutter Dependencies & Harden Transitive Gradle Plugins
+        run: |
+          flutter pub get
+          
+          # Upgrade Kotlin version in settings.gradle or build.gradle to modern 1.9.24 to support jvmToolchain directives
+          if [ -f "android/settings.gradle" ]; then
+            sed -i 's/version "1.7.[0-9]*"/version "1.9.24"/g' android/settings.gradle || true
+            sed -i 's/version "1.8.[0-9]*"/version "1.9.24"/g' android/settings.gradle || true
+          fi
+          if [ -f "android/build.gradle" ]; then
+            sed -i 's/ext.kotlin_version = .*$/ext.kotlin_version = "1.9.24"/g' android/build.gradle || true
+          fi
+
+          # Proactively apply org.jetbrains.kotlin.android to JNI and child plugins in pub-cache to resolve 'Could not find method kotlin()'
+          find "$HOME/.pub-cache" -name "build.gradle" -path "*/jni-*/android/*" -exec sed -i '1i apply plugin: "org.jetbrains.kotlin.android"' {} + || true
+
+          # Enforce kotlin plugin application in root build.gradle subprojects
+          cat << 'EOF' >> android/build.gradle
+          
+          subprojects {
+              afterEvaluate { project ->
+                  if (project.name == "jni" || project.hasProperty("android")) {
+                      project.apply plugin: 'org.jetbrains.kotlin.android'
+                  }
+              }
+          }
+          EOF
+          
+          echo "=== Verified Gradle Configuration ==="
+          head -n 25 android/build.gradle || true
+          head -n 25 android/settings.gradle || true
 
       - name: Build Android APK (Release Mode)
         run: flutter build apk --release
