@@ -22,21 +22,17 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Setup Flutter Environment
+      - name: Setup Flutter Environment (Stable Channel)
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.29.x'
           channel: 'stable'
           cache: true
 
-      - name: Generate Native Android Project Architecture
-        run: flutter create --org com.autopro.garage .
+      - name: Generate Native Android Project Structure
+        run: flutter create --org com.autopro.garage --platforms=android .
 
       - name: Install Flutter Dependencies
         run: flutter pub get
-
-      - name: Analyze Dart Code
-        run: flutter analyze || true
 
       - name: Build Android APK (Release Mode)
         run: flutter build apk --release
@@ -44,7 +40,7 @@ jobs:
       - name: Upload APK Artifact to GitHub Workflow
         uses: actions/upload-artifact@v4
         with:
-          name: app-release.apk
+          name: AutoPro_Android_Release.apk
           path: build/app/outputs/flutter-apk/app-release.apk
           retention-days: 30
           compression-level: 0

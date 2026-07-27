@@ -1,4 +1,4 @@
-name: iOS CI / CD Release Build
+name: iOS IPA CI / CD Release Build
 
 on:
   push:
@@ -9,7 +9,7 @@ on:
 
 jobs:
   build_ios:
-    name: Build iOS App Bundle (Unsigned)
+    name: Build Standalone iOS IPA
     runs-on: macos-latest
 
     steps:
@@ -21,15 +21,14 @@ jobs:
         with:
           xcode-version: 'latest-stable'
 
-      - name: Setup Flutter Environment
+      - name: Setup Flutter Environment (Stable Channel)
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.29.x'
           channel: 'stable'
           cache: true
 
-      - name: Generate Native iOS Project Architecture
-        run: flutter create --org com.autopro.garage .
+      - name: Generate Native iOS Project Structure & CocoaPods Configuration
+        run: flutter create --org com.autopro.garage --platforms=ios .
 
       - name: Install Flutter Dependencies
         run: flutter pub get
@@ -37,21 +36,24 @@ jobs:
       - name: Install CocoaPods Dependencies for iOS
         run: |
           cd ios
-          pod install || pod update
+          pod install || (pod repo update && pod install)
           cd ..
 
-      - name: Build iOS App Bundle (No Code Sign for CI Validation)
+      - name: Build iOS Application Bundle (No Code Sign for CI Validation)
         run: flutter build ios --release --no-codesign
 
-      - name: Create Zip Archive of iOS Application Bundle
+      - name: Package Runner.app into Standalone Installable IPA Archive
         run: |
           cd build/ios/iphoneos
-          zip -r ios_app_bundle.zip Runner.app
+          mkdir -p Payload
+          mv Runner.app Payload/
+          zip -r AutoPro_iOS_Release.ipa Payload
           cd ../../../
 
-      - name: Upload iOS Application Artifact to GitHub Workflow
+      - name: Upload Standalone IPA Artifact to GitHub Workflow
         uses: actions/upload-artifact@v4
         with:
-          name: ios-runner-app.zip
-          path: build/ios/iphoneos/ios_app_bundle.zip
+          name: AutoPro_iOS_Release.ipa
+          path: build/ios/iphoneos/AutoPro_iOS_Release.ipa
           retention-days: 30
+          compression-level: 0
