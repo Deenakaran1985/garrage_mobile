@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
+import '../widgets/server_config_modal.dart';
 
 class JobCardsScreen extends StatefulWidget {
   const JobCardsScreen({Key? key}) : super(key: key);
@@ -52,10 +53,19 @@ class _JobCardsScreenState extends State<JobCardsScreen> {
         elevation: 0,
         actions: [
           IconButton(
+            icon: const Icon(Icons.router, color: Colors.greenAccent),
+            tooltip: 'Configure Server Host Address',
+            onPressed: () => showServerConfigModal(context, onConfigUpdated: () {
+              setState(() {});
+              fetchJobCards();
+            }),
+          ),
+          IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: fetchJobCards,
             tooltip: 'Refresh Status',
           ),
+          const SizedBox(width: 4),
         ],
       ),
       body: isLoading

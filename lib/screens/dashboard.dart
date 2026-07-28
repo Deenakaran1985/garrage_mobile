@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../services/api_service.dart';
+import '../widgets/server_config_modal.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({Key? key}) : super(key: key);
@@ -74,11 +75,32 @@ class _DashboardScreenState extends State<DashboardScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 8.0, top: 8.0, bottom: 8.0),
+            child: ActionChip(
+              avatar: const Icon(Icons.router, size: 16, color: Colors.greenAccent),
+              label: Text(
+                ApiService.serverHost.length > 16
+                    ? '${ApiService.serverHost.substring(0, 14)}..'
+                    : ApiService.serverHost,
+                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white, fontFamily: 'monospace'),
+              ),
+              backgroundColor: Colors.white.withOpacity(0.08),
+              side: BorderSide(color: Colors.greenAccent.withOpacity(0.3)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+              tooltip: 'Configure Dynamic Server Address & Security Pin',
+              onPressed: () => showServerConfigModal(context, onConfigUpdated: () {
+                setState(() {});
+                fetchStats();
+              }),
+            ),
+          ),
           IconButton(
             icon: const Icon(Icons.refresh, color: Colors.white70),
             onPressed: fetchStats,
             tooltip: 'Refresh Stats',
-          )
+          ),
+          const SizedBox(width: 4),
         ],
       ),
       body: isLoading 
