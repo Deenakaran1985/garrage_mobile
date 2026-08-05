@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import '../widgets/server_config_modal.dart';
+import 'create_job_card_wizard.dart';
 
 class JobCardsScreen extends StatefulWidget {
   const JobCardsScreen({Key? key}) : super(key: key);
@@ -31,12 +32,17 @@ class _JobCardsScreenState extends State<JobCardsScreen> {
   Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
       case 'diagnosing':
+      case 'quote pending approval':
+      case 'pending approval':
         return Colors.amberAccent;
+      case 'in service queue':
       case 'in repair':
+      case 'service in progress':
         return Colors.blueAccent;
       case 'pending parts':
         return Colors.orangeAccent;
       case 'completed':
+      case 'completed & invoiced':
       case 'delivered':
         return Colors.greenAccent;
       default:
@@ -47,6 +53,12 @@ class _JobCardsScreenState extends State<JobCardsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const CreateJobCardWizard())),
+        backgroundColor: const Color(0xFF3B82F6),
+        tooltip: 'Create Job Card / Quotation',
+        child: const Icon(Icons.add, color: Colors.white, size: 28),
+      ),
       appBar: AppBar(
         title: const Text('Live Repair Monitor', style: TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: Colors.transparent,
@@ -231,6 +243,63 @@ class _JobCardsScreenState extends State<JobCardsScreen> {
                                 ),
                               ],
                             ),
+                            const SizedBox(height: 14),
+                            if ((jc['status'] ?? '').toString().toLowerCase().contains('pending') || (jc['status'] ?? '').toString().toLowerCase().contains('quote'))
+                              ElevatedButton.icon(
+                                style: ElevatedButton.styleFrom(backgroundColor: Colors.orangeAccent, minimumSize: const Size(double.infinity, 44), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                                onPressed: () async {
+                                  final int jcId = jc['id'] is int ? jc['id'] as int : 1;
+                                  await ApiService.approveQuotation(jcId);
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('✅ Quotation approved! Vehicle assigned to Mechanic Service Queue.'), backgroundColor: Colors.green));
+                                    fetchJobCards();
+                                  }
+                                },
+                                icon: const Icon(Icons.verified_user, color: Colors.black, size: 18),
+                                label: const Text('APPROVE QUOTE & ASSIGN TO QUEUE', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w900, fontSize: 11)),
+                              )
+                            else if ((jc['status'] ?? '').toString().toLowerCase().contains('queue'))
+                              ElevatedButton.icon(
+                                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF3B82F6), minimumSize: const Size(double.infinity, 44), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                                onPressed: () async {
+                                  final int jcId = jc['id'] is int ? jc['id'] as int : 1;
+                                  await ApiService.acceptServiceQueue(jcId);
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('🔧 Service Accepted! Vehicle now In Progress.'), backgroundColor: Colors.blueAccent));
+                                    fetchJobCards();
+                                  }
+                                },
+                                icon: const Icon(Icons.handyman, color: Colors.white, size: 18),
+                                label: const Text('ACCEPT SERVICE FROM QUEUE (MECHANIC) 🔧', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 12)),
+                              )
+                            else if ((jc['status'] ?? '').toString().toLowerCase().contains('progress') || (jc['status'] ?? '').toString().toLowerCase().contains('repair') || (jc['status'] ?? '').toString().toLowerCase().contains('diagnos'))
+                              ElevatedButton.icon(
+                                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF10B981), minimumSize: const Size(double.infinity, 44), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                                onPressed: () async {
+                                  final int jcId = jc['id'] is int ? jc['id'] as int : 1;
+                                  final res = await ApiService.completeServiceAndInvoice(jcId);
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('🏁 Service Complete! Tax Invoice generated (₹${res['invoice_amount'] ?? jc['estimated_cost']}) & dispatched to Customer Login!'), backgroundColor: Colors.green));
+                                    fetchJobCards();
+                                  }
+                                },
+                                icon: const Icon(Icons.receipt_long, color: Colors.white, size: 18),
+                                label: const Text('MARK COMPLETED & GENERATE TAX INVOICE 🏁', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 11)),
+                              )
+                            else
+                              Container(
+                                width: double.infinity,
+                                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                                decoration: BoxDecoration(color: Colors.green.withOpacity(0.15), borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.green.withOpacity(0.4))),
+                                child: const Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.check_circle, color: Colors.greenAccent, size: 18),
+                                    SizedBox(width: 8),
+                                    Text('Service Completed • Invoice Sent to Customer Portal', style: TextStyle(color: Colors.greenAccent, fontWeight: FontWeight.w900, fontSize: 12)),
+                                  ],
+                                ),
+                              ),
                           ],
                         ),
                       );

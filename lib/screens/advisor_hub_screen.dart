@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import '../widgets/server_config_modal.dart';
+import 'create_job_card_wizard.dart';
 
 class AdvisorHubScreen extends StatefulWidget {
   const AdvisorHubScreen({Key? key}) : super(key: key);
@@ -65,6 +66,12 @@ class _AdvisorHubScreenState extends State<AdvisorHubScreen> with SingleTickerPr
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const CreateJobCardWizard())),
+        backgroundColor: const Color(0xFF3B82F6),
+        icon: const Icon(Icons.add_task, color: Colors.white),
+        label: const Text('New Job Card / Quote', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900)),
+      ),
       appBar: AppBar(
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -275,16 +282,21 @@ class _AdvisorHubScreenState extends State<AdvisorHubScreen> with SingleTickerPr
                 ),
                 const SizedBox(height: 14),
                 ElevatedButton.icon(
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('⚡ Converting ${q['code']} into active Job Card...'), backgroundColor: const Color(0xFF3B82F6)),
-                    );
+                  onPressed: () async {
+                    final int qId = q['id'] is int ? q['id'] as int : 1;
+                    await ApiService.approveQuotation(qId, quotationId: qId);
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('✅ ${q['code']} Quote Approved! Vehicle dispatched to Mechanic Service Queue!'), backgroundColor: const Color(0xFF10B981)),
+                      );
+                      fetchData();
+                    }
                   },
-                  icon: const Icon(Icons.build_circle, size: 18, color: Colors.white),
-                  label: const Text('Convert to Active Repair Job Card', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.white)),
+                  icon: const Icon(Icons.check_circle_outline, size: 18, color: Colors.white),
+                  label: const Text('Approve Quote & Assign to Service Queue ⚡', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 12, color: Colors.white)),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF3B82F6),
-                    minimumSize: const Size(double.infinity, 42),
+                    backgroundColor: const Color(0xFF10B981),
+                    minimumSize: const Size(double.infinity, 44),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                 ),
