@@ -30,9 +30,9 @@ class _ServerConfigDialogState extends State<_ServerConfigDialog> {
   Color diagnosticColor = Colors.grey;
 
   final List<String> quickPresets = [
+    '14.139.184.39:8100', // Live Production Server ⭐
     '10.0.2.2:8000',      // Default Android Emulator
-    '192.168.1.50:8000',    // Typical Wi-Fi LAN
-    '127.0.0.1:8000',     // Local Desktop Debug
+    '192.168.1.50:8000',  // Typical Wi-Fi LAN
   ];
 
   @override

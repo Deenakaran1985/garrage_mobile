@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
   // Dynamic network endpoints persisted via SharedPreferences
-  static String serverHost = '127.0.0.1:8000';
+  static String serverHost = '14.139.184.39:8100';
   static String serverProtocol = 'http';
   static String connectionPassword = 'admin'; // Default fallback administrative password
   static String activeUserRole = 'Admin'; // Options: Admin, Mechanic, Advisor, Customer
@@ -17,7 +17,13 @@ class ApiService {
   static Future<void> loadServerConfig() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      serverHost = prefs.getString('server_host') ?? '10.0.2.2:8000'; // Default to Android emulator LAN IP
+      String savedHost = prefs.getString('server_host') ?? '14.139.184.39:8100';
+      // Automatically migrate from legacy local/emulator defaults to live production server
+      if (savedHost == '10.0.2.2:8000' || savedHost == '127.0.0.1:8000' || savedHost == '192.168.1.50:8000') {
+        savedHost = '14.139.184.39:8100';
+        await prefs.setString('server_host', savedHost);
+      }
+      serverHost = savedHost;
       serverProtocol = prefs.getString('server_protocol') ?? 'http';
       connectionPassword = prefs.getString('server_password') ?? 'admin';
       activeUserRole = prefs.getString('user_role') ?? 'Admin';
