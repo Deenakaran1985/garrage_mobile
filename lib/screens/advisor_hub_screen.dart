@@ -99,17 +99,9 @@ class _AdvisorHubScreenState extends State<AdvisorHubScreen> with SingleTickerPr
           unselectedLabelColor: Colors.grey[400],
           labelStyle: const TextStyle(fontWeight: FontWeight.w800, fontSize: 12),
           tabs: [
-            Tab(
-              icon: Badge(
-                label: Text('$lowStockCount'),
-                isLabelVisible: lowStockCount > 0,
-                backgroundColor: Colors.redAccent,
-                child: const Icon(Icons.inventory_2_outlined),
-              ),
-              text: 'Stock Alerts',
-            ),
-            const Tab(icon: Icon(Icons.request_quote_outlined), text: 'Quotations'),
-            const Tab(icon: Icon(Icons.connect_without_contact), text: 'WhatsApp Follow-Up'),
+            Tab(icon: const Icon(Icons.inventory), text: 'Stock ($lowStockCount)'),
+            const Tab(icon: Icon(Icons.request_quote), text: 'Quotations'),
+            const Tab(icon: Icon(Icons.chat), text: 'WhatsApp Follow-Up'),
           ],
         ),
       ),

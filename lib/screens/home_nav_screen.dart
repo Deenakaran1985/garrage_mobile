@@ -28,33 +28,33 @@ class _HomeNavScreenState extends State<HomeNavScreen> {
     final role = ApiService.activeUserRole;
     if (role == 'Mechanic') {
       return [
-        {'title': 'Lifts & Staff', 'icon': Icons.engineering_outlined, 'activeIcon': Icons.engineering, 'screen': const MechanicHubScreen(), 'color': const Color(0xFFE11D48)},
-        {'title': 'Live Jobs', 'icon': Icons.build_circle_outlined, 'activeIcon': Icons.build_circle, 'screen': const JobCardsScreen(), 'color': const Color(0xFF3B82F6)},
-        {'title': 'Dashboard', 'icon': Icons.dashboard_outlined, 'activeIcon': Icons.dashboard, 'screen': const DashboardScreen(), 'color': const Color(0xFF10B981)},
-        {'title': 'Vault 📜', 'icon': Icons.manage_history, 'activeIcon': Icons.history_edu, 'screen': const VehicleHistoryScreen(), 'color': const Color(0xFFF59E0B)},
+        {'title': 'Lifts & Staff', 'icon': Icons.engineering, 'activeIcon': Icons.engineering, 'screen': const MechanicHubScreen(), 'color': const Color(0xFFE11D48)},
+        {'title': 'Live Jobs', 'icon': Icons.build, 'activeIcon': Icons.build, 'screen': const JobCardsScreen(), 'color': const Color(0xFF3B82F6)},
+        {'title': 'Dashboard', 'icon': Icons.dashboard, 'activeIcon': Icons.dashboard, 'screen': const DashboardScreen(), 'color': const Color(0xFF10B981)},
+        {'title': 'Vault 📜', 'icon': Icons.history, 'activeIcon': Icons.history, 'screen': const VehicleHistoryScreen(), 'color': const Color(0xFFF59E0B)},
       ];
     } else if (role == 'Advisor') {
       return [
-        {'title': 'Advisor & Stock', 'icon': Icons.inventory_2_outlined, 'activeIcon': Icons.inventory_2, 'screen': const AdvisorHubScreen(), 'color': const Color(0xFF10B981)},
-        {'title': 'Live Jobs', 'icon': Icons.build_circle_outlined, 'activeIcon': Icons.build_circle, 'screen': const JobCardsScreen(), 'color': const Color(0xFF3B82F6)},
-        {'title': 'Dashboard', 'icon': Icons.dashboard_outlined, 'activeIcon': Icons.dashboard, 'screen': const DashboardScreen(), 'color': const Color(0xFFE11D48)},
-        {'title': 'Vault 📜', 'icon': Icons.manage_history, 'activeIcon': Icons.history_edu, 'screen': const VehicleHistoryScreen(), 'color': const Color(0xFFF59E0B)},
+        {'title': 'Advisor & Stock', 'icon': Icons.inventory, 'activeIcon': Icons.inventory, 'screen': const AdvisorHubScreen(), 'color': const Color(0xFF10B981)},
+        {'title': 'Live Jobs', 'icon': Icons.build, 'activeIcon': Icons.build, 'screen': const JobCardsScreen(), 'color': const Color(0xFF3B82F6)},
+        {'title': 'Dashboard', 'icon': Icons.dashboard, 'activeIcon': Icons.dashboard, 'screen': const DashboardScreen(), 'color': const Color(0xFFE11D48)},
+        {'title': 'Vault 📜', 'icon': Icons.history, 'activeIcon': Icons.history, 'screen': const VehicleHistoryScreen(), 'color': const Color(0xFFF59E0B)},
       ];
     } else if (role == 'Customer') {
       return [
         {'title': 'SOS 🚨', 'icon': Icons.support_agent, 'activeIcon': Icons.support_agent, 'screen': const SosBookingScreen(), 'color': const Color(0xFFEA580C), 'isHighlight': true},
-        {'title': 'Vault 📜', 'icon': Icons.manage_history, 'activeIcon': Icons.history_edu, 'screen': const VehicleHistoryScreen(), 'color': const Color(0xFF3B82F6)},
-        {'title': 'Track Repair', 'icon': Icons.build_circle_outlined, 'activeIcon': Icons.build_circle, 'screen': const JobCardsScreen(), 'color': const Color(0xFF10B981)},
-        {'title': 'Overview', 'icon': Icons.dashboard_outlined, 'activeIcon': Icons.dashboard, 'screen': const DashboardScreen(), 'color': const Color(0xFF6366F1)},
+        {'title': 'Vault 📜', 'icon': Icons.history, 'activeIcon': Icons.history, 'screen': const VehicleHistoryScreen(), 'color': const Color(0xFF3B82F6)},
+        {'title': 'Track Repair', 'icon': Icons.build, 'activeIcon': Icons.build, 'screen': const JobCardsScreen(), 'color': const Color(0xFF10B981)},
+        {'title': 'Overview', 'icon': Icons.dashboard, 'activeIcon': Icons.dashboard, 'screen': const DashboardScreen(), 'color': const Color(0xFF6366F1)},
       ];
     } else {
       // Default Executive Admin - Full access across 5 main items
       return [
-        {'title': 'Dashboard', 'icon': Icons.dashboard_outlined, 'activeIcon': Icons.dashboard, 'screen': const DashboardScreen(), 'color': const Color(0xFF3B82F6)},
+        {'title': 'Dashboard', 'icon': Icons.dashboard, 'activeIcon': Icons.dashboard, 'screen': const DashboardScreen(), 'color': const Color(0xFF3B82F6)},
         {'title': 'SOS 🚨', 'icon': Icons.support_agent, 'activeIcon': Icons.support_agent, 'screen': const SosBookingScreen(), 'color': const Color(0xFFEA580C), 'isHighlight': true},
-        {'title': 'Lifts & Bays', 'icon': Icons.engineering_outlined, 'activeIcon': Icons.engineering, 'screen': const MechanicHubScreen(), 'color': const Color(0xFFE11D48)},
-        {'title': 'Stock & Advisor', 'icon': Icons.inventory_2_outlined, 'activeIcon': Icons.inventory_2, 'screen': const AdvisorHubScreen(), 'color': const Color(0xFF10B981)},
-        {'title': 'Vault 📜', 'icon': Icons.manage_history, 'activeIcon': Icons.history_edu, 'screen': const VehicleHistoryScreen(), 'color': const Color(0xFFF59E0B)},
+        {'title': 'Lifts & Bays', 'icon': Icons.engineering, 'activeIcon': Icons.engineering, 'screen': const MechanicHubScreen(), 'color': const Color(0xFFE11D48)},
+        {'title': 'Stock & Advisor', 'icon': Icons.inventory, 'activeIcon': Icons.inventory, 'screen': const AdvisorHubScreen(), 'color': const Color(0xFF10B981)},
+        {'title': 'Vault 📜', 'icon': Icons.history, 'activeIcon': Icons.history, 'screen': const VehicleHistoryScreen(), 'color': const Color(0xFFF59E0B)},
       ];
     }
   }

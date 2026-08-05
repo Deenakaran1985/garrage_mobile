@@ -109,8 +109,8 @@ class _MechanicHubScreenState extends State<MechanicHubScreen> with SingleTicker
           unselectedLabelColor: Colors.grey[400],
           labelStyle: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13),
           tabs: const [
-            Tab(icon: Icon(Icons.engineering_outlined), text: 'Hydraulic Lifts & Bays'),
-            Tab(icon: Icon(Icons.emoji_events_outlined), text: 'Mechanic Leaderboard'),
+            Tab(icon: Icon(Icons.engineering), text: 'Hydraulic Lifts & Bays'),
+            Tab(icon: Icon(Icons.emoji_events), text: 'Mechanic Leaderboard'),
           ],
         ),
       ),
@@ -247,7 +247,7 @@ class _MechanicHubScreenState extends State<MechanicHubScreen> with SingleTicker
                       children: [
                         ElevatedButton.icon(
                           onPressed: () => _handleToggleBay(bay['id'], status),
-                          icon: const Icon(Icons.swap_horizontal_circle, size: 18),
+                          icon: const Icon(Icons.sync, size: 18),
                           label: Text(status == 'Vacant' ? 'Assign & Occupy Lift' : (status == 'Occupied' ? 'Set to Maintenance' : 'Release to Vacant'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: status == 'Vacant' ? const Color(0xFFE11D48) : const Color(0xFF10B981),
