@@ -156,6 +156,7 @@ class _RoleSwitcherSheet extends StatelessWidget {
                   ],
                 ),
               ),
+            );
           }).toList(),
           const SizedBox(height: 10),
           Center(
