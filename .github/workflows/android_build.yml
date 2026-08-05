@@ -16,11 +16,12 @@ jobs:
       - name: Checkout Repository Code
         uses: actions/checkout@v4
 
-      - name: Setup Java Development Kit (JDK 17)
+      - name: Setup Java Development Kit (JDK 17) & Gradle Cache
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
+          cache: 'gradle'
 
       - name: Setup Flutter Environment (Stable Channel)
         uses: subosito/flutter-action@v2
@@ -30,6 +31,15 @@ jobs:
 
       - name: Generate Native Android Project Structure
         run: flutter create --org com.autopro.garage --platforms=android -a kotlin .
+
+      - name: Configure High-Speed Mirrors to Bypass HTTP 429 Rate Limits
+        run: |
+          echo "=== Injecting JetBrains & Aliyun CDN mirrors into settings.gradle(.kts) and build.gradle(.kts) ==="
+          # Inject mirrors into Kotlin DSL (.kts) files
+          find android -name "*.kts" -exec sed -i 's|mavenCentral()|maven("https://cache-redirector.jetbrains.com/maven-central")\n        maven("https://cache-redirector.jetbrains.com/plugins.gradle.org/m2")\n        maven("https://maven.aliyun.com/repository/public")\n        maven("https://maven.aliyun.com/repository/google")\n        mavenCentral()|g' {} + || true
+
+          # Inject mirrors into Groovy DSL (.gradle) files
+          find android -name "*.gradle" -exec sed -i 's|mavenCentral()|maven { url "https://cache-redirector.jetbrains.com/maven-central" }\n        maven { url "https://cache-redirector.jetbrains.com/plugins.gradle.org/m2" }\n        maven { url "https://maven.aliyun.com/repository/public" }\n        maven { url "https://maven.aliyun.com/repository/google" }\n        mavenCentral()|g' {} + || true
 
       - name: Install Flutter Dependencies & Generate Custom Garage App Icons
         run: |
@@ -43,33 +53,18 @@ jobs:
           find android/app/src/main/res -name "*ic_launcher*.webp" -exec cp -f assets/icon/ic_launcher.png {} + || true
           sed -i 's/android:label=".*"/android:label="AutoPro Garage - Sri Innov Tech"/g' android/app/src/main/AndroidManifest.xml || true
           
-          # Upgrade Kotlin version in settings.gradle or build.gradle to modern 1.9.24 to support jvmToolchain directives
-          if [ -f "android/settings.gradle" ]; then
-            sed -i 's/version "1.7.[0-9]*"/version "1.9.24"/g' android/settings.gradle || true
-            sed -i 's/version "1.8.[0-9]*"/version "1.9.24"/g' android/settings.gradle || true
-          fi
-          if [ -f "android/build.gradle" ]; then
-            sed -i 's/ext.kotlin_version = .*$/ext.kotlin_version = "1.9.24"/g' android/build.gradle || true
-          fi
+          # Upgrade Kotlin version in settings or build files if specified as ext or variable
+          find android -type f \( -name "*.gradle*" \) -exec sed -i 's/version "1.7.[0-9]*"/version "2.0.20"/g' {} + || true
+          find android -type f \( -name "*.gradle*" \) -exec sed -i 's/version "1.8.[0-9]*"/version "2.0.20"/g' {} + || true
+          find android -type f \( -name "*.gradle*" \) -exec sed -i 's/version "1.9.[0-9]*"/version "2.0.20"/g' {} + || true
+          find android -type f \( -name "*.gradle*" \) -exec sed -i 's/ext.kotlin_version = .*$/ext.kotlin_version = "2.0.20"/g' {} + || true
 
           # Proactively apply org.jetbrains.kotlin.android to JNI and child plugins in pub-cache to resolve 'Could not find method kotlin()'
           find "$HOME/.pub-cache" -name "build.gradle" -path "*/jni-*/android/*" -exec sed -i '1i apply plugin: "org.jetbrains.kotlin.android"' {} + || true
 
-          # Enforce kotlin plugin application in root build.gradle subprojects
-          cat << 'EOF' >> android/build.gradle
-          
-          subprojects {
-              afterEvaluate { project ->
-                  if (project.name == "jni" || project.hasProperty("android")) {
-                      project.apply plugin: 'org.jetbrains.kotlin.android'
-                  }
-              }
-          }
-          EOF
-          
-          # Harden CI memory limits and explicitly turn off Gradle daemon & VFS watcher to eliminate 'Already watching path' exception
+          # Harden CI memory limits and explicitly turn off Gradle daemon & VFS watcher
           cat << 'PROPS' >> android/gradle.properties
-
+          
           org.gradle.jvmargs=-Xmx4g -Dfile.encoding=UTF-8 -XX:+HeapDumpOnOutOfMemoryError -XX:+UseParallelGC
           org.gradle.parallel=true
           org.gradle.daemon=false
@@ -77,14 +72,26 @@ jobs:
           PROPS
           
           echo "=== Verified Gradle Configuration ==="
-          head -n 25 android/build.gradle || true
-          head -n 25 android/settings.gradle || true
-          tail -n 10 android/gradle.properties || true
+          head -n 35 android/settings.gradle.kts || head -n 35 android/settings.gradle || true
+          tail -n 15 android/gradle.properties || true
 
-      - name: Compile Release & Debug APKs
+      - name: Compile Release & Debug APKs (With Auto-Retry for Network Limits)
         run: |
-          # Run release compilation with fallback to debug APK build to ensure an installable binary is always assembled
-          flutter build apk --release --no-tree-shake-icons || flutter build apk --debug || (cd android && chmod +x ./gradlew && ./gradlew assembleDebug assembleRelease --no-daemon --no-watch-fs)
+          # Use retry logic in case of temporary network rate-limits or timeouts during Maven dependency fetch
+          for attempt in 1 2 3; do
+            echo "=== APK Compilation Attempt #$attempt ==="
+            if flutter build apk --release --no-tree-shake-icons; then
+              echo "Release APK successfully built!"
+              break
+            else
+              echo "Attempt #$attempt failed (likely due to temporary rate limits or download errors). Retrying in 15 seconds..."
+              sleep 15
+              if [ "$attempt" -eq 3 ]; then
+                echo "Fallback: Trying debug APK compilation..."
+                flutter build apk --debug || (cd android && chmod +x ./gradlew && ./gradlew assembleDebug assembleRelease --no-daemon --no-watch-fs)
+              fi
+            fi
+          done
 
       - name: Recursively Discover and Stage Built APK Artifacts
         run: |
