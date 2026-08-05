@@ -16,12 +16,11 @@ jobs:
       - name: Checkout Repository Code
         uses: actions/checkout@v4
 
-      - name: Setup Java Development Kit (JDK 17) & Gradle Cache
-        uses: actions/setup-java@v4
+      - name: Setup Java Development Kit (JDK 17)
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '17'
-          cache: 'gradle'
 
       - name: Setup Flutter Environment (Stable Channel)
         uses: subosito/flutter-action@v2
