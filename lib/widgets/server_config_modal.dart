@@ -54,9 +54,9 @@ class _ServerConfigDialogState extends State<_ServerConfigDialog> {
 
   Future<void> _runPingTest() async {
     if (hostCtrl.text.trim().isEmpty) {
-      setState({
-        diagnosticMessage: '⚠️ Please input a target server IP address first.',
-        diagnosticColor: Colors.orangeAccent,
+      setState(() {
+        diagnosticMessage = '⚠️ Please input a target server IP address first.';
+        diagnosticColor = Colors.orangeAccent;
       });
       return;
     }
@@ -91,9 +91,9 @@ class _ServerConfigDialogState extends State<_ServerConfigDialog> {
     }
 
     if (hostCtrl.text.trim().isEmpty) {
-      setState({
-        diagnosticMessage: '⚠️ Server address cannot be empty.',
-        diagnosticColor: Colors.orangeAccent,
+      setState(() {
+        diagnosticMessage = '⚠️ Server address cannot be empty.';
+        diagnosticColor = Colors.orangeAccent;
       });
       return;
     }
