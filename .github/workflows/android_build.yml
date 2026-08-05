@@ -31,6 +31,14 @@ jobs:
       - name: Generate Native Android Project Structure
         run: flutter create --org com.autopro.garage --platforms=android -a kotlin .
 
+      - name: Apply Custom Garage App Icon & Sri Innov Technologies Branding
+        run: |
+          if [ -f "assets/icon/ic_launcher.png" ]; then
+            echo "Replacing default Flutter launcher icons with custom Garage OS icon..."
+            find android/app/src/main/res -name "ic_launcher*.png" -exec cp -f assets/icon/ic_launcher.png {} + || true
+          fi
+          sed -i 's/android:label=".*"/android:label="AutoPro Garage - Sri Innov Tech"/g' android/app/src/main/AndroidManifest.xml || true
+
       - name: Install Flutter Dependencies & Harden Transitive Gradle Plugins
         run: |
           flutter pub get

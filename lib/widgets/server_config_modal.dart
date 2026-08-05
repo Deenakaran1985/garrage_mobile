@@ -378,6 +378,13 @@ class _ServerConfigDialogState extends State<_ServerConfigDialog> {
                   ),
                 ],
               ),
+              const SizedBox(height: 18),
+              Center(
+                child: Text(
+                  'App developed by Sri Innov Technologies',
+                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.grey[500], letterSpacing: 0.5),
+                ),
+              ),
             ],
           ),
         ),

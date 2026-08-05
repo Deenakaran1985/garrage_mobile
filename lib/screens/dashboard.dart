@@ -227,9 +227,38 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               ),
                             ],
                           ),
-                        ),
                   ),
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 24),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 14),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.35),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: Colors.white.withOpacity(0.08)),
+                    ),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.build_circle, color: Color(0xFF3B82F6), size: 18),
+                            const SizedBox(width: 8),
+                            const Text(
+                              'AutoPro Garage Enterprise OS',
+                              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Colors.white),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'App developed by Sri Innov Technologies ✨',
+                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.amberAccent[100], letterSpacing: 0.5),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 70),
                 ],
               ),
             ),
